@@ -9,7 +9,7 @@ const SuperAdminRouter=require("./Router/SuperAdminRouter");
 
 
 const cors = require("cors")
-const connectDb = require("./config/db")
+const connectDb = require("./Config/db")
 
 
 require("dotenv").config();

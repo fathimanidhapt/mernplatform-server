@@ -1,5 +1,3 @@
-
-
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../Model/Usermodel");
@@ -9,6 +7,11 @@ let register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     console.log(req.body, "=====req.body");
+
+    const superAdminEmail = (process.env.SUPERADMIN_EMAIL || "superadmin@gmail.com").toLowerCase().trim();
+    if (email && email.toLowerCase().trim() === superAdminEmail) {
+      return res.status(400).json({ message: "Invalid registration credentials." });
+    }
 
     const userExist = await User.findOne({ email });
     if (userExist) return res.status(400).json({ message: "User exists" });

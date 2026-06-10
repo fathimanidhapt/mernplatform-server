@@ -156,10 +156,109 @@ const toggleBlockUser = async (req, res) => {
     }
 };
 
+const createAdminBySuperAdmin = async (req, res) => {
+    try {
+        const isSuper = await checkSuperAdmin(req.id);
+        if (!isSuper) {
+            return res.status(403).json({ message: "Access denied. Super Admins only." });
+        }
+
+        const { name, email, password } = req.body;
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "All fields (name, email, password) are required." });
+        }
+
+        const normalizedEmail = email.toLowerCase().trim();
+        const existingUser = await User.findOne({ email: normalizedEmail });
+        if (existingUser) {
+            return res.status(400).json({ message: "User already exists with this email." });
+        }
+
+        const bcrypt = require("bcryptjs");
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newAdmin = await User.create({
+            name,
+            email: normalizedEmail,
+            password: hashedPassword,
+            role: "admin"
+        });
+
+        await Profile.create({ userId: newAdmin._id });
+
+        res.status(201).json({
+            message: "Admin created successfully.",
+            admin: {
+                _id: newAdmin._id,
+                name: newAdmin.name,
+                email: newAdmin.email,
+                role: newAdmin.role,
+                createdAt: newAdmin.createdAt
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const updateAdminBySuperAdmin = async (req, res) => {
+    try {
+        const isSuper = await checkSuperAdmin(req.id);
+        if (!isSuper) {
+            return res.status(403).json({ message: "Access denied. Super Admins only." });
+        }
+
+        const { name, email, password } = req.body;
+        const targetAdmin = await User.findById(req.params.id);
+        if (!targetAdmin) {
+            return res.status(404).json({ message: "Administrator not found." });
+        }
+
+        if (email) {
+            const normalizedEmail = email.toLowerCase().trim();
+            if (normalizedEmail !== targetAdmin.email) {
+                const existingUser = await User.findOne({ email: normalizedEmail });
+                if (existingUser) {
+                    return res.status(400).json({ message: "User already exists with this email." });
+                }
+                targetAdmin.email = normalizedEmail;
+            }
+        }
+
+        if (name) {
+            targetAdmin.name = name.trim();
+        }
+
+        if (password && password.trim().length > 0) {
+            if (password.trim().length < 6) {
+                return res.status(400).json({ message: "Password must be at least 6 characters long." });
+            }
+            const bcrypt = require("bcryptjs");
+            targetAdmin.password = await bcrypt.hash(password, 10);
+        }
+
+        await targetAdmin.save();
+
+        res.json({
+            message: "Admin credentials updated successfully.",
+            admin: {
+                _id: targetAdmin._id,
+                name: targetAdmin.name,
+                email: targetAdmin.email,
+                role: targetAdmin.role
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     getSuperAdminUsers,
     updateUserRole,
     deleteUserBySuperAdmin,
     getPlatformStats,
-    toggleBlockUser
+    toggleBlockUser,
+    createAdminBySuperAdmin,
+    updateAdminBySuperAdmin
 };

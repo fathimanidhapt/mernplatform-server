@@ -5,7 +5,9 @@ const {
     updateUserRole,
     deleteUserBySuperAdmin,
     getPlatformStats,
-    toggleBlockUser
+    toggleBlockUser,
+    createAdminBySuperAdmin,
+    updateAdminBySuperAdmin
 } = require("../Controller/SuperAdmincontroller");
 
 const router = express.Router();
@@ -15,5 +17,7 @@ router.put("/users/:id/role", protect, updateUserRole);
 router.delete("/users/:id", protect, deleteUserBySuperAdmin);
 router.put("/users/:id/block", protect, toggleBlockUser);
 router.get("/stats", protect, getPlatformStats);
+router.post("/admins", protect, createAdminBySuperAdmin);
+router.put("/admins/:id", protect, updateAdminBySuperAdmin);
 
 module.exports = router;

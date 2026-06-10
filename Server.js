@@ -13,7 +13,10 @@ const connectDb = require("./Config/db")
 
 
 require("dotenv").config();
-connectDb()
+connectDb().then(() => {
+    const seedSuperAdmin = require("./Utils/seedSuperAdmin");
+    seedSuperAdmin();
+});
 
 const app=express()
 

@@ -30,8 +30,10 @@ let register = async (req, res) => {
 let login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
+    const normalizedEmail = email ? email.toLowerCase().trim() : "";
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email: normalizedEmail });
     if (!user) return res.status(400).json({ message: "Invalid Email" });
 
     if (user.isBlocked) {

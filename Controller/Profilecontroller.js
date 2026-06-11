@@ -93,7 +93,7 @@ const uploadProfilePic = async (req, res) => {
             return res.status(400).json({ message: "No file uploaded" });
         }
 
-        const fileUrl = `http://localhost:3000/upload/${req.file.filename}`;
+        const fileUrl = `${req.protocol}://${req.get("host")}/upload/${req.file.filename}`;
 
         await Profile.findOneAndUpdate(
             { userId: req.id },

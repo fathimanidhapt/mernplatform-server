@@ -16,6 +16,8 @@ require("dotenv").config();
 connectDb().then(() => {
     const seedSuperAdmin = require("./Utils/seedSuperAdmin");
     seedSuperAdmin();
+}).catch(err => {
+    console.error("Database connection failed:", err.message);
 });
 
 const app=express()
@@ -24,7 +26,8 @@ const PORT = process.env.PORT || 3000;
 app.use(cors())
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
-app.use("/upload",express.static("uploads"))
+const uploadDir = process.env.VERCEL ? "/tmp" : "uploads";
+app.use("/upload", express.static(uploadDir));
 
 app.use("/api/user",UserRouter);
 app.use("/api/posts",PostRouter);

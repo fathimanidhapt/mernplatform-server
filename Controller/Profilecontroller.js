@@ -2,15 +2,18 @@ const User = require("../Model/Usermodel");
 const Profile = require("../Model/Profilemodel");
 
 const getProfile = async (req, res) => {
+    console.log("getProfile called. req.query:", req.query, "req.id:", req.id);
     try {
-        const user = await User.findById(req.id).select("-password");
+        const targetUserId = req.query.userId || req.id;
+        console.log("Resolved targetUserId:", targetUserId);
+        const user = await User.findById(targetUserId).select("-password");
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
 
-        let profile = await Profile.findOne({ userId: req.id });
+        let profile = await Profile.findOne({ userId: targetUserId });
         if (!profile) {
-            profile = await Profile.create({ userId: req.id });
+            profile = await Profile.create({ userId: targetUserId });
         }
 
         res.json({

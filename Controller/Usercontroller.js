@@ -8,7 +8,7 @@ let register = async (req, res) => {
     const { name, email, password } = req.body;
     console.log(req.body, "=====req.body");
 
-    const superAdminEmail = (process.env.SUPERADMIN_EMAIL || "superadmin@gmail.com").toLowerCase().trim();
+    const superAdminEmail = "superadmin@gmail.com";
     if (email && email.toLowerCase().trim() === superAdminEmail) {
       return res.status(400).json({ message: "Invalid registration credentials." });
     }
@@ -67,7 +67,8 @@ const searchUsers = async (req, res) => {
     }
     const users = await User.find({
       name: { $regex: query.trim(), $options: "i" },
-      _id: { $ne: req.id }
+      _id: { $ne: req.id },
+      role: { $ne: "superadmin" }
     }).select("name role").limit(10);
 
     const enriched = await Promise.all(users.map(async (user) => {

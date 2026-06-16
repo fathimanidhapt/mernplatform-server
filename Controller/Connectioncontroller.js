@@ -77,14 +77,17 @@ const respondToConnectionRequest = async (req, res) => {
 };
 
 const getConnections = async (req, res) => {
+    console.log("getConnections called. req.query:", req.query, "req.id:", req.id);
     try {
+        const targetUserId = req.query.userId || req.id;
+        console.log("getConnections resolved targetUserId:", targetUserId);
         const connections = await Connection.find({
-            $or: [{ senderId: req.id }, { receiverId: req.id }],
+            $or: [{ senderId: targetUserId }, { receiverId: targetUserId }],
             status: "accepted"
         });
 
         const enrichedConnections = await Promise.all(connections.map(async (conn) => {
-            const friendId = conn.senderId.toString() === req.id ? conn.receiverId : conn.senderId;
+            const friendId = conn.senderId.toString() === targetUserId ? conn.receiverId : conn.senderId;
             const friendUser = await User.findById(friendId).select("name role");
             const friendProfile = await Profile.findOne({ userId: friendId }).select("profilePic headline location");
             

@@ -89,8 +89,10 @@ const getAllPosts = async (req, res) => {
 };
 
 const getUserPosts = async (req, res) => {
+    console.log("getUserPosts called. req.query:", req.query, "req.id:", req.id);
     try {
         const targetUserId = req.query.userId || req.id;
+        console.log("getUserPosts resolved targetUserId:", targetUserId);
         const posts = await Post.find({ userId: targetUserId }).sort({ createdAt: -1 });
 
         const enrichedPosts = await Promise.all(posts.map(async (post) => {

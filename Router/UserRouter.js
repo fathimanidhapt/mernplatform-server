@@ -7,26 +7,7 @@ const {
   getAllUsers
 } = require("../Controller/Usercontroller");
 
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-
-const uploadDir = process.env.VERCEL ? "/tmp" : "uploads";
-
-if (!process.env.VERCEL && !fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
-}
-
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ storage: storage });
+const upload = require("../Middleware/upload");
 
 const {
   getProfile,

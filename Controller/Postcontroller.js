@@ -242,6 +242,14 @@ const deletePost = async (req, res) => {
         const isAuthor = post.userId && post.userId.toString() === req.id;
         const isAdmin = requestingUser && (requestingUser.role === "admin" || requestingUser.role === "superadmin");
 
+        console.log("DEBUG DELETION:", {
+            postUserId: post.userId ? post.userId.toString() : null,
+            reqId: req.id,
+            isAuthor,
+            isAdmin,
+            userRole: requestingUser ? requestingUser.role : null
+        });
+
         if (!isAuthor && !isAdmin) {
             return res.status(403).json({ message: "Access denied. You can only delete your own posts." });
         }

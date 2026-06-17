@@ -239,7 +239,7 @@ const deletePost = async (req, res) => {
         }
 
         const requestingUser = await User.findById(req.id);
-        const isAuthor = post.userId.toString() === req.id;
+        const isAuthor = post.userId && post.userId.toString() === req.id;
         const isAdmin = requestingUser && (requestingUser.role === "admin" || requestingUser.role === "superadmin");
 
         if (!isAuthor && !isAdmin) {

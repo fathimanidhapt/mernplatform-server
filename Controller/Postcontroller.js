@@ -233,20 +233,23 @@ const uploadPostImage = async (req, res) => {
 
 const deletePost = async (req, res) => {
     try {
-        const adminUser = await User.findById(req.id);
-        if (!adminUser || adminUser.role !== "admin") {
-            return res.status(403).json({ message: "Access denied. Admins only." });
-        }
-
         const post = await Post.findById(req.params.id);
         if (!post) {
             return res.status(404).json({ message: "Post not found" });
         }
 
+        const requestingUser = await User.findById(req.id);
+        const isAuthor = post.userId.toString() === req.id;
+        const isAdmin = requestingUser && (requestingUser.role === "admin" || requestingUser.role === "superadmin");
+
+        if (!isAuthor && !isAdmin) {
+            return res.status(403).json({ message: "Access denied. You can only delete your own posts." });
+        }
+
         await Post.findByIdAndDelete(req.params.id);
         await Notification.deleteMany({ postId: req.params.id });
 
-        res.json({ message: "Post successfully moderated and deleted" });
+        res.json({ message: "Post successfully deleted" });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

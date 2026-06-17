@@ -9,7 +9,7 @@ const createPost = async (req, res) => {
         let imageUrl = req.body.image || "";
 
         if (req.file) {
-            imageUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+            imageUrl = req.file.path;
         }
 
         const newPost = await Post.create({
@@ -224,7 +224,7 @@ const uploadPostImage = async (req, res) => {
             return res.status(400).json({ message: "No file uploaded" });
         }
 
-        const fileUrl = `data:${req.file.mimetype};base64,${req.file.buffer.toString("base64")}`;
+        const fileUrl = req.file.path;
         res.json({ imageUrl: fileUrl });
     } catch (error) {
         res.status(500).json({ message: error.message });
